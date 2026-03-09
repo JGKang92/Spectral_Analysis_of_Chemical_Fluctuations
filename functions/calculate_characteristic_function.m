@@ -44,6 +44,13 @@ function P_s = calculate_characteristic_function(model, s)
             a = parameters.alpha; % shape
             b = parameters.beta;  % scale
             P_s(nonzero_idx) = (1 + b.*s_nonzero).^(-a);
+        
+        case 'Enzymatic'
+            k21 = parameters.k21;
+            k12 = parameters.k12;
+            gamma = parameters.gamma;
+            denom = k12.*s_nonzero + (s_nonzero + k21).*(s_nonzero + gamma);
+            P_s(nonzero_idx) = k12.*gamma ./ denom;
 
         case "multi-state"
             K_transition = parameters.transition_rates;

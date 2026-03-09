@@ -14,7 +14,8 @@ function variates = generate_random_variates(model, numSamples)
         case {'Poisson', 'Exponential', '1-state'}
             rate = parameters.rate;
             variates = random('Exponential', 1/rate, numSamples, 1);
-        case "multi-state"
+        
+        case 'multi-state'
             K_transition = parameters.transition_rates;
             k_reaction = parameters.reaction_rates;
             initial_probability = parameters.initial_probability;
@@ -27,10 +28,34 @@ function variates = generate_random_variates(model, numSamples)
                 case 3
                     error("Not implemented yet.")
             end
+
         case 'multi-step'
             k = parameters.rate;
             n = parameters.numSteps;
             variates = random('Gamma', n, 1/k, numSamples, 1);
+        
+        case 'Enzymatic'
+            k21 = parameters.k21;
+            k12 = parameters.k12;
+            gamma = parameters.gamma;
+            variates = nan(numSamples, 1);
+
+            for ii = 1:numSamples
+                t_ = 0;
+                while true
+                    t21 = exprnd(1./k21);
+                    t12 = exprnd(1./k12);
+                    tg = exprnd(1./gamma);
+                    if tg < t12
+                        t_ = t_ + t21 + tg;
+                        break
+                    else
+                        t_ = t_ + t21 + t12;
+                        continue
+                    end
+                end
+                variates(ii) = t_;
+            end
 
         case 'Gamma'
             a = parameters.alpha;
